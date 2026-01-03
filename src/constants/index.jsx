@@ -1,46 +1,46 @@
 import { MdRecordVoiceOver } from "react-icons/md";
-import { AiOutlineFileText } from "react-icons/ai";
-import { FaImage } from "react-icons/fa";
-import { SiJavascript } from "react-icons/si";
-import { RiTranslate2 } from "react-icons/ri";
-import { FaTable } from "react-icons/fa";
+import { BiTask } from "react-icons/bi";
+import { TbListDetails } from "react-icons/tb";
+import { HiOutlineSparkles } from "react-icons/hi";
+import { FiCode } from "react-icons/fi";
+import { BsChatSquareQuote } from "react-icons/bs";
 
 export const features = [
   {
     icon: <MdRecordVoiceOver />,
-    text: "Create a Transcript",
+    text: "Voice to Intent",
     description:
-      "Upload an audio file (WAV, MP3, etc.) and ask the app to create a transcript of the conversation. You can also request time stamps for each section.",
+      "Speak naturally about your day, plans, or thoughts. The app listens and understands what you really mean.",
   },
   {
-    icon: <AiOutlineFileText />,
-    text: "Summarize a Document",
+    icon: <BiTask />,
+    text: "Automatic Task Extraction",
     description:
-      "Upload a PDF or text file and ask for a concise summary of the key points, helping you quickly grasp the main ideas.",
+      "Identifies tasks, reminders, decisions, and questions directly from your spoken input.",
   },
   {
-    icon: <FaImage />,
-    text: "Extract Key Information from Images",
+    icon: <TbListDetails />,
+    text: "Structured Intent Output",
     description:
-      "Upload an image (JPEG, PNG, etc.) and ask questions like 'What is in this picture?' or 'What text does this image contain?' for text recognition.",
+      "Converts unstructured speech into clean, organized intent you can act on instantly.",
   },
   {
-    icon: <SiJavascript />,
-    text: "Analyze Code",
+    icon: <HiOutlineSparkles />,
+    text: "Smart Rephrasing",
     description:
-      "Upload JavaScript or Python files and ask questions like “What does this function do?” or “Can you improve this code?” to get insights and suggestions.",
+      "Refines unclear or rambling speech into precise, meaningful intent without changing context.",
   },
   {
-    icon: <RiTranslate2 />,
-    text: "Translate Texts",
+    icon: <FiCode />,
+    text: "Developer-Ready JSON",
     description:
-      "Upload a text file (TXT, HTML, Markdown) in one language and ask the app to translate it into another language.",
+      "Outputs intent in a predictable JSON format for easy integration with apps, bots, or workflows.",
   },
   {
-    icon: <FaTable />,
-    text: "Get CSV Data Insights:",
+    icon: <BsChatSquareQuote />,
+    text: "Context-Aware Understanding",
     description:
-      'Upload a CSV file and ask questions like "What are the top 5 entries?" or "Give me a summary of this data," and the app will analyze it for you.',
+      "Understands tone, context, and human nuance — not just keywords — for higher accuracy.",
   },
 ];
 

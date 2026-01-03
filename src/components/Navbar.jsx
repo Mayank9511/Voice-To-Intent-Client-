@@ -1,6 +1,5 @@
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
 
 const Navbar = () => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -27,8 +26,16 @@ const Navbar = () => {
       <div className="container px-4 mx-auto relative lg:text-sm">
         <div className="flex justify-between items-center">
           <div className="flex items-center flex-shrink-0">
-            <FileCopyIcon style={{ color: "#f97316", marginRight: "10px" }} />
-            <span className="text-xl tracking-tight">Play with files</span>
+            <img
+              src="/Icon.svg"
+              alt="Voice To Intent"
+              style={{
+                width: "25px",
+                height: "25px",
+                marginRight: "10px",
+              }}
+            />
+            <span className="text-xl tracking-tight">Voice To Intent</span>
           </div>
           <ul className="hidden lg:flex ml-14 space-x-12">
             {sections.map((section, index) => (

@@ -10,19 +10,14 @@ const HeroSection = () => {
       className="flex h-[75vh] flex-col items-center pt-6 lg:pt-20"
     >
       <h1 className="text-4xl sm:text-6xl lg:text-7xl text-center tracking-wide">
-        Play with
+        Voice To
         <span className="bg-gradient-to-r from-orange-500 to-red-800 text-transparent bg-clip-text">
           {" "}
-          files
+          Intent
         </span>
       </h1>
       <p className="mt-10 text-lg text-center text-neutral-500 max-w-4xl">
-        "Play with Files" is an innovative app designed to help users interact
-        with a wide range of file types, from documents and images to audio and
-        code. Whether you need to extract key information, generate summaries,
-        analyze data, or get creative content, this platform makes it easy to
-        upload a file and ask any question related to it, delivering smart,
-        tailored responses in real-time.
+        “Voice to Intent” is an intelligent app that listens to how people naturally speak and instantly converts their thoughts into clear, structured intent. Whether you’re sharing ideas, tasks, reminders, decisions, or questions, the app understands context, emotions, and meaning. Turning raw voice into actionable clarity in real time. Just speak freely, and let your intent take shape automatically
       </p>
       <div className="flex justify-center my-10">
         <button

@@ -1,60 +1,100 @@
-import React, { useState } from "react";
-import { Button, TextField, CircularProgress, Typography } from "@mui/material";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Button,
+  TextField,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
+import MicIcon from "@mui/icons-material/Mic";
+import StopIcon from "@mui/icons-material/Stop";
+import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
 import { Analytics } from "@vercel/analytics/react";
 
+const MAX_RECORDING_TIME = 60000; // 1 minute
+
 const GetStarted = () => {
-  const [file, setFile] = useState(null);
-  const [question, setQuestion] = useState("");
-  const [response, setResponse] = useState("");
+  const [input, setInput] = useState("");
+  const [intent, setIntent] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [recording, setRecording] = useState(false);
 
-  const handleFileUpload = (event) => {
-    const selectedFile = event.target.files[0];
+  const recognitionRef = useRef(null);
+  const timeoutRef = useRef(null);
 
-    if (selectedFile && selectedFile.size > 20 * 1024 * 1024) {
-      alert("File size exceeds the 20MB limit. Please upload a smaller file.");
-      setFile(null);
-      return;
+  /* 🎙️ Speech Recognition */
+  useEffect(() => {
+    if ("webkitSpeechRecognition" in window) {
+      const recognition = new window.webkitSpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.continuous = true;
+      recognition.interimResults = false;
+
+      recognition.onresult = (e) => {
+        let transcript = "";
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          transcript += e.results[i][0].transcript;
+        }
+
+        console.log("🎙️ Transcribed Voice:", transcript);
+        setInput((prev) => prev + " " + transcript);
+      };
+
+      recognition.onend = () => {
+        clearTimeout(timeoutRef.current);
+        setRecording(false);
+      };
+
+      recognitionRef.current = recognition;
     }
+  }, []);
 
-    setFile(selectedFile);
+  /* ▶️ Start Recording */
+  const startRecording = () => {
+    if (!recognitionRef.current) return;
+
+    setInput("");
+    setRecording(true);
+    recognitionRef.current.start();
+
+    timeoutRef.current = setTimeout(() => {
+      stopRecording();
+    }, MAX_RECORDING_TIME);
   };
 
-  const handleQuestionSubmit = async () => {
-    if (!file) return alert("Please upload a file and then ask a question.");
+  /* ⏹️ Stop Recording */
+  const stopRecording = () => {
+    recognitionRef.current?.stop();
+    clearTimeout(timeoutRef.current);
+    setRecording(false);
+  };
 
-    if (!question) {
-      setQuestion("Explain the content of this file in brief.");
-    }
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("question", question);
+  const handleSubmit = async () => {
+    if (!input.trim()) return;
 
     setLoading(true);
+    setIntent(null);
+
     try {
-      const res = await axios
-        .post("https://play-with-files-server.onrender.com/api/ask", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((response) => {
-          setResponse(response.data.answer);
-        })
-        .catch((error) => console.error(error));
+      const res = await axios.post("https://steam-server.onrender.com/api/intent", {
+        text: input,
+      });
+      setIntent(res.data);
     } catch (error) {
       console.error(error);
-      setResponse("An error occurred while generating the response.");
+      setIntent({
+        tasks: [],
+        reminders: [],
+        decisions: [],
+        questions: [],
+      });
     }
+
     setLoading(false);
   };
 
   const handleKeyPress = (event) => {
-    if (event.key === "Enter") {
-      handleQuestionSubmit();
-    }
+    if (event.key === "Enter") handleSubmit();
   };
 
   return (
@@ -63,106 +103,118 @@ const GetStarted = () => {
       className="flex flex-col border-t py-20 border-neutral-700"
     >
       <h2 className="text-3xl sm:text-5xl lg:text-6xl text-center mt-6 tracking-wide">
-        Upload and{" "}
+        Speak or Type →{" "}
         <span className="bg-gradient-to-r from-orange-500 to-orange-800 text-transparent bg-clip-text">
-          Ask!
+          Intent
         </span>
       </h2>
+
       <div className="mt-[5vh] flex flex-grow flex-wrap">
-        {/* Left Box - File Upload and Question (30% Width) */}
+        {/* LEFT PANEL */}
         <div className="w-full sm:w-1/2 lg:w-[30%] p-2">
           <div className="p-10 border border-neutral-700 rounded-xl h-full flex flex-col justify-between">
-            <div>
-              <Typography variant="h8" gutterBottom>
-                Upload any file eg. pdf, text, image, audio except video (size
-                upto 20mb).
-              </Typography>
-              <input
-                accept=".pdf,.jpeg,.jpg,.png,.webp,.heic,.heif,.wav,.mp3,.aiff,.aac,.ogg,.flac,.js,.py,.txt,.html,.css,.md,.csv,.xml,.rtf"
-                style={{ display: "none" }}
-                id="file-upload"
-                type="file"
-                onChange={handleFileUpload}
-              />
-              <label htmlFor="file-upload">
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  component="span"
-                  startIcon={<UploadFileIcon />}
-                  style={{ margin: "20px 0", width: "100%" }}
-                >
-                  Upload File
-                </Button>
-              </label>
+            <Typography variant="body2" gutterBottom>
+              Speak freely or type your thoughts.
+              We’ll convert them into clear intent.
+            </Typography>
 
-              {file && (
-                <Typography variant="body2">File: {file.name}</Typography>
+            <TextField
+              fullWidth
+              multiline
+              minRows={4}
+              variant="outlined"
+              margin="normal"
+              label="Say anything..."
+              value={input}
+              color="secondary"
+              focused
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              InputProps={{ style: { color: "white" } }}
+            />
+
+            <div className="flex gap-3 mt-4">
+              {!recording ? (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  fullWidth
+                  startIcon={<MicIcon />}
+                  onClick={startRecording}
+                >
+                  Voice
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  fullWidth
+                  startIcon={<StopIcon />}
+                  onClick={stopRecording}
+                >
+                  Stop
+                </Button>
               )}
-            </div>
-            <div>
-              <TextField
-                fullWidth
-                variant="outlined"
-                margin="normal"
-                label="Ask a Question"
-                value={question}
-                color="secondary"
-                focused
-                onChange={(e) => setQuestion(e.target.value)}
-                onKeyPress={handleKeyPress}
-                InputProps={{
-                  style: { color: "white" }, // Sets the text color to white
-                }}
-              />
 
               <Button
                 variant="contained"
-                // color="secondary"
-                onClick={handleQuestionSubmit}
+                fullWidth
                 disabled={loading}
-                style={{ margin: "20px 0", width: "100%" }}
-                className="bg-gradient-to-r from-orange-500 to-orange-800 py-5 px-4 mx-3 rounded-md"
+                onClick={handleSubmit}
+                startIcon={
+                  loading ? (
+                    <CircularProgress size={18} style={{ color: "white" }} />
+                  ) : (
+                    <SendIcon />
+                  )
+                }
+                className="bg-gradient-to-r from-orange-500 to-orange-800"
               >
-                {loading ? (
-                  <CircularProgress style={{ color: "white" }} size={24} />
-                ) : (
-                  "Submit Question"
-                )}
+                Convert
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Right Box - Response (70% Width) */}
+        {/* RIGHT PANEL */}
         <div className="w-full sm:w-1/2 lg:w-[70%] p-2">
           <div className="p-10 border border-neutral-700 rounded-xl h-full">
             <Typography variant="h5" gutterBottom>
-              Response:
+              Extracted Intent
             </Typography>
 
-            <div className="max-h-[70vh] sm:h-[50vh] overflow-y-auto">
-              {response ? (
-                <Typography
-                  variant="body1"
-                  style={{ marginTop: "2rem", whiteSpace: "pre-line" }}
-                  dangerouslySetInnerHTML={{
-                    __html: response
-                      .replace(/## (.*?)\n/g, "<h2>$1</h2>")
-                      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold
-                      .replace(/_(.*?)_/g, "<em>$1</em>") // Italics
-                      .replace(/~~(.*?)~~/g, "<s>$1</s>"), // Strikethrough
-                  }}
-                />
+            <div className="max-h-[70vh] sm:h-[50vh] overflow-y-auto space-y-4">
+              {intent ? (
+                Object.entries(intent).map(
+                  ([key, items]) =>
+                    items.length > 0 && (
+                      <div key={key}>
+                        <Typography
+                          variant="h6"
+                          className="uppercase text-orange-500"
+                        >
+                          {key}
+                        </Typography>
+                        <ul className="list-disc ml-6 mt-2">
+                          {items.map((item, i) => (
+                            <li key={i} className="mb-1">
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )
+                )
               ) : (
                 <Typography variant="body1" style={{ marginTop: "2rem" }}>
-                  No response yet.
+                  No intent extracted yet.
                 </Typography>
               )}
             </div>
           </div>
         </div>
       </div>
+
       <Analytics />
     </div>
   );

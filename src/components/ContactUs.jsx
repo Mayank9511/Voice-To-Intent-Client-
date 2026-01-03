@@ -46,7 +46,7 @@ const ContactUs = () => {
 
       <div className=" flex-row p-10 md:p-20 mt-auto">
         <p className="mt-10 text-lg text-center text-neutral-500">
-          This is the first version of "Play with files". So,
+          This is the first version of "Voice To Intent". So,
           your feedback will be invaluable in helping me improve it further. As
           a personal project, I'm eager to hear your thoughts. You can send me
           an email or connect on LinkedIn. If this project excites you enough
