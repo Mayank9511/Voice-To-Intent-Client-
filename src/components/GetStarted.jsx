@@ -87,6 +87,7 @@ const GetStarted = () => {
         reminders: [],
         decisions: [],
         questions: [],
+        suggestions: []
       });
     }
 
